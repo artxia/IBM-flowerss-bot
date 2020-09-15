@@ -1,0 +1,7 @@
+applications:
+- path: flowerss-bot
+  name: cloud_fonudray_name
+  memory: 256M
+  health-check-type: process
+  random-route: true
+  command: ./flowerss-bot
