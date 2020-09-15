@@ -1,0 +1,43 @@
+name: IBM Cloud Auto Install
+
+on:
+  workflow_dispatch:
+    inputs:
+
+jobs:
+  ibm-cloud-install:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install build dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -y install wget
+        sudo apt-get -y install curl
+
+    - name: Flowerss BOT Build
+      run: |
+        git submodule update --init --recursive
+        ${{ secrets.SMALL_ALTER }}
+        cd flowerss-bot
+        make build
+
+    - name: Settings Configuration File
+      run: |
+        cd
+        sed -i "s/cloud_fonudray_name/${{ secrets.IBM_APP_NAME }}/g" ${GITHUB_WORKSPACE}/manifest.yml
+        cat >  ${GITHUB_WORKSPACE}/flowerss-bot/config.yml  << EOF
+        ${{ secrets.FRSS_CONFIG }}
+        EOF
+
+    - name: Install Cloud Foundry CLI
+      run: |
+        curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&source=github&version=v6" | tar -zx
+        sudo mv cf /usr/local/bin
+      
+    - name: Login Cloud Foundry
+      run: cf l -a https://api.us-south.cf.cloud.ibm.com login -u ${{ secrets.IBM_MAIL }} -p ${{ secrets.IBM_PWD }}
+      
+    - name: Push Cloud Foundry APP
+      run: cf push ${{ secrets.IBM_APP_NAME }}
