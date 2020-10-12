@@ -18,6 +18,7 @@ jobs:
 
     - name: Flowerss BOT Build
       run: |
+        git submodule update --init --recursive
         git submodule update --remote
         ${{ secrets.SMALL_ALTER }}
         cd flowerss-bot
